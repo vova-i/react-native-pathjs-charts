@@ -76,7 +76,7 @@ export default class LineChart extends Component {
   }
 
   reset(){
-      this.setState({lineWidth: new Animated.Value((Dimensions.get('window').width - 60) * 2)});
+    this.state.lineWidth.setValue((Dimensions.get('window').width - 60) * 2);
   }
 
   render() {
