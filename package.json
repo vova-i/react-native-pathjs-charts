@@ -1,6 +1,6 @@
 {
   "name": "react-native-pathjs-charts-line-animation",
-  "version": "0.0.26",
+  "version": "0.0.3",
   "description": "Cross platform React Native charting library based on path-js and react-native-svg",
   "repository": {
     "type": "git",
