@@ -29,11 +29,12 @@ export default class LineChart extends Component {
 
   constructor(props, chartType) {
     super(props)
-    this.chartType = chartType
+    this.chartType = chartType;
+    this.maxLineWidth = 0;
 
     this.state = {
-      lineWidth: new Animated.Value((Dimensions.get('window').width - 60) * 2)
-    }
+      lineWidth: new Animated.Value(this.maxLineWidth)
+    };
   }
 
   getMaxAndMin(chart, key, scale, chartMin, chartMax) {
@@ -76,7 +77,7 @@ export default class LineChart extends Component {
   }
 
   reset(){
-    this.state.lineWidth.setValue((Dimensions.get('window').width - 60) * 2);
+    this.state.lineWidth.setValue(this.maxLineWidth);
   }
 
   render() {
@@ -110,17 +111,22 @@ export default class LineChart extends Component {
 
     let showAreas = typeof(this.props.options.showAreas) !== 'undefined' ? this.props.options.showAreas : true;
     let strokeWidth = typeof(this.props.options.strokeWidth) !== 'undefined' ? this.props.options.strokeWidth : '1';
-    let lines = _.map(chart.curves, function (c, i) {
-      return <AnimatedPath
+    _.map(chart.curves, (c, i) =>
+      this.maxLineWidth = Math.max(this.maxLineWidth, svgPathProperties(c.line.path.print()).getTotalLength())
+    );
+    this.state.lineWidth = new Animated.Value(this.maxLineWidth);
+
+    let lines = _.map(chart.curves, (c, i) =>
+      <AnimatedPath
         key={'lines' + i}
         d={ c.line.path.print() }
         stroke={ this.color(i) }
         strokeWidth={strokeWidth}
         fill="none"
-        strokeDasharray={[(Dimensions.get('window').width - 60) * 2]}
+        strokeDasharray={[this.maxLineWidth]}
         strokeDashoffset={this.state.lineWidth}
       />
-    }.bind(this))
+    );
     let areas = null
 
     if (showAreas) {
