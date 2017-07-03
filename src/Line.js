@@ -20,6 +20,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Animated, Dimensions, Text as ReactText } from 'react-native';
 import Svg, { G, Path, Rect, Text } from 'react-native-svg';
+import { svgPathProperties } from 'svg-path-properties';
 import Axis from './Axis';
 import { Colors, cyclic, fontAdapt, Options } from './util';
 
