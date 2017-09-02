@@ -121,11 +121,13 @@ export default class LineChart extends Component {
       <AnimatedPath
         key={'lines' + i}
         d={ c.line.path.print() }
-        stroke={ this.color(i) }
+        stroke={ i > 3 ? this.state.lineWidth === 0 ? 'white' : this.color(i) : this.color(i) }
         strokeWidth={strokeWidth}
         fill="none"
-        strokeDasharray={[this.maxLineWidth]}
-        strokeDashoffset={this.state.lineWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={ i > 3 ? [8, 12] : [this.maxLineWidth]}
+        strokeDashoffset={ i > 3 ? null : this.state.lineWidth }
       />
     );
     let areas = null
