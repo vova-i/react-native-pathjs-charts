@@ -64,6 +64,7 @@ export default class SmoothLineChart extends LineChart {
           color: '#34495E'
         }
       }
-    }
+    },
+    animatable: true
   }
 }

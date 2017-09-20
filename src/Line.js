@@ -78,7 +78,7 @@ export default class LineChart extends Component {
   }
 
   reset(){
-    this.state.lineWidth.setValue(this.maxLineWidth);
+    this.state.lineWidth.setValue(this.maxLineWidth);
   }
 
   render() {
@@ -112,23 +112,25 @@ export default class LineChart extends Component {
 
     let showAreas = typeof(this.props.options.showAreas) !== 'undefined' ? this.props.options.showAreas : true;
     let strokeWidth = typeof(this.props.options.strokeWidth) !== 'undefined' ? this.props.options.strokeWidth : '1';
-    _.map(chart.curves, (c, i) =>
-      this.maxLineWidth = Math.max(this.maxLineWidth, svgPathProperties(c.line.path.print()).getTotalLength())
-    );
-    this.state.lineWidth = new Animated.Value(this.maxLineWidth);
+    if (this.props.animatable) {
+      _.map(chart.curves, (c, i) =>
+        this.maxLineWidth = Math.max(this.maxLineWidth, svgPathProperties(c.line.path.print()).getTotalLength())
+      );
+      this.state.lineWidth = new Animated.Value(this.maxLineWidth);
+    }
 
     let lines = _.map(chart.curves, (c, i) =>
-      <AnimatedPath
-        key={'lines' + i}
-        d={ c.line.path.print() }
-        stroke={ i > 3 ? this.state.lineWidth === 0 ? 'white' : this.color(i) : this.color(i) }
-        strokeWidth={strokeWidth}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray={ i > 3 ? [8, 12] : [this.maxLineWidth]}
-        strokeDashoffset={ i > 3 ? null : this.state.lineWidth }
-      />
+        <AnimatedPath
+          key={'lines' + i}
+          d={c.line.path.print()}
+          stroke={i > 3 ? this.state.lineWidth === 0 ? 'white' : this.color(i) : this.color(i)}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeDasharray={i > 3 ? [8, 12] : this.props.animatable ? [this.maxLineWidth] : null}
+          strokeDashoffset={i > 3 ? null : this.props.animatable ? this.state.lineWidth : null}
+        />
     );
     let areas = null
 
