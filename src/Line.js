@@ -17,17 +17,25 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import React, { Component } from 'react';
-import { Text as ReactText } from 'react-native';
+import { Animated, Dimensions, Text as ReactText } from 'react-native';
 import Svg, { G, Path, Rect, Text, Circle } from 'react-native-svg';
+import { svgPathProperties } from 'svg-path-properties';
 import { Colors, Options, cyclic, fontAdapt } from './util';
 import Axis from './Axis';
 import GridAxis from './GridAxis';
 import _ from 'lodash';
 
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
 export default class LineChart extends Component {
   constructor(props, chartType) {
     super(props);
     this.chartType = chartType;
+    this.maxLineWidth = 0;
+
+    this.state = {
+      lineWidth: new Animated.Value(this.maxLineWidth)
+    };
   }
 
   getMaxAndMin(chart, key, scale, chartMin, chartMax) {
@@ -60,6 +68,17 @@ export default class LineChart extends Component {
     if (!_.isString(this.props.options.color)) color = color.color;
     let pallete = this.props.pallete || Colors.mix(color || '#9ac7f7');
     return Colors.string(cyclic(pallete, i));
+  }
+
+  animate(delay, duration) {
+    Animated.timing(
+      this.state.lineWidth,
+      {toValue: 0, delay, duration}
+    ).start();
+  }
+
+  reset(){
+    this.state.lineWidth.setValue(this.maxLineWidth);
   }
 
   render() {
@@ -97,34 +116,28 @@ export default class LineChart extends Component {
     let strokeWidth = typeof this.props.options.strokeWidth !== 'undefined'
       ? this.props.options.strokeWidth
       : '1';
-    let strokeDasharray = typeof this.props.options.strokeDasharray !== 'undefined'
-      ? this.props.options.strokeDasharray
-      : [];
-    let strokeOpacity = typeof this.props.options.strokeOpacity !== 'undefined'
-      ? this.props.options.strokeOpacity
-      : 1;
-    let lines = _.map(
-      chart.curves,
-      function(c, i) {
-        const strokeWidthForCurve =
-          (typeof strokeWidth === 'function' && strokeWidth(c, i)) || strokeWidth;
-        const strokeDasharrayForCurve =
-          (typeof strokeDasharray === 'function' && strokeDasharray(c, i)) || strokeDasharray;
-        const strokeOpacityForCurve =
-          (typeof strokeOpacity === 'function' && strokeOpacity(c, i)) || strokeOpacity;
-        return (
-          <Path
-            key={'lines' + i}
-            d={c.line.path.print()}
-            stroke={this.color(i)}
-            strokeWidth={strokeWidthForCurve}
-            strokeOpacity={strokeOpacityForCurve}
-            fill="none"
-            strokeDasharray={strokeDasharrayForCurve}
-          />
-        );
-      }.bind(this)
+
+    if (this.props.animatable) {
+      _.map(chart.curves, (c, i) =>
+        this.maxLineWidth = Math.max(this.maxLineWidth, svgPathProperties(c.line.path.print()).getTotalLength())
+      );
+      this.state.lineWidth = new Animated.Value(this.maxLineWidth);
+    }
+
+    let lines = _.map(chart.curves, (c, i) =>
+      <AnimatedPath
+        key={'lines' + i}
+        d={c.line.path.print()}
+        stroke={i > 3 ? this.state.lineWidth === 0 ? 'white' : this.color(i) : this.color(i)}
+        strokeWidth={strokeWidth}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={i > 3 ? [8, 12] : this.props.animatable ? [this.maxLineWidth] : null}
+        strokeDashoffset={i > 3 ? null : this.props.animatable ? this.state.lineWidth : null}
+      />
     );
+
     let areas = null;
 
     let showPoints = typeof this.props.options.showPoints !== 'undefined'
