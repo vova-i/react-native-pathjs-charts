@@ -153,7 +153,7 @@ export default class Axis extends Component {
       let gxy = horizontal ? [scale(scaleBase),chartArea.y.min]:[chartArea.x.min,scale(scaleBase)]
 
       let returnValue
-      if (label !== undefined && label !== null && gxy > 0) {
+      if (label !== undefined && label !== null && gxy[1] > 0) {
         returnValue =
           <G key={i} x={gxy[0]} y={gxy[1]}>
               {options.showTicks &&
