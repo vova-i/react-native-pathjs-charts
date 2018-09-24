@@ -63,6 +63,10 @@ export class AxisStruct {
     return tickValues
   }
 
+  static getSecondaryTickValues(axis) {
+    return _.range(axis.minValue, axis.maxValue + 1);
+  }
+
   axis() {
 
     const horizontal = this.horizontal
@@ -72,6 +76,10 @@ export class AxisStruct {
     const tickInterval = this.options.tickCount || 10
     const decimalPlaces = this.options.decimalPlaces || 2
     const ticks = this.options.tickValues !== undefined && this.options.tickValues.length !== 0? _.map(this.options.tickValues,function(v){return v.value }):AxisStruct.getTickValues(currentAxis, tickInterval, decimalPlaces)
+    let secondaryTicks;
+    if (this.options.showSecondaryTicks) {
+      secondaryTicks = AxisStruct.getSecondaryTickValues(currentAxis);
+    }
     const fixed = this.options.zeroAxis?this.scale(0):horizontal?yAxis.min:xAxis.min
     const start = {x: horizontal?xAxis.min:fixed, y: horizontal?fixed:yAxis.min}
     const end = {x:horizontal?xAxis.max:fixed,y: horizontal?fixed:yAxis.max}
@@ -97,6 +105,7 @@ export class AxisStruct {
       item: currentAxis,
       path: Pathjs().moveto(start).lineto(end).closepath(),
       ticks: ticks,
+      secondaryTicks: secondaryTicks,
       lines: ticks.map((c,i) => {
         let scaleBase = isNaN(c) ? i : c
         const lineStart = {x: horizontal ? this.scale(scaleBase) + margin.left : xAxis.min + margin.left, y: horizontal ? yAxis.min + margin.top : this.scale(scaleBase) + margin.top}
@@ -147,6 +156,22 @@ export default class Axis extends Component {
 
     const textStyle = fontAdapt(options.label)
 
+    let secondaryTicks;
+    if (options.showSecondaryTicks) {
+      secondaryTicks = _.map(axis.secondaryTicks, function (c, i) {
+        let scaleBase = isNaN(c) ? i : c
+        let gxy = horizontal ? [scale(scaleBase), chartArea.y.min] : [chartArea.x.min, scale(scaleBase)]
+
+        return (
+          <G key={`secondary_tick_${i}`} x={gxy[0]} y={gxy[1]}>
+            {options.showSecondaryTicks &&
+            <Circle r={options.secondaryTickSize} cx="0" cy="0" stroke={options.tickColor} fill={options.tickColor}/>
+            }
+          </G>
+        );
+      });
+    }
+
     const ticks =_.map(axis.ticks, function (c, i) {
       const label = options.labelFunction !== undefined? options.labelFunction.apply(this, [c]) : c
       let scaleBase = isNaN(c) ? i : c
@@ -186,6 +211,7 @@ export default class Axis extends Component {
               <G x={offset.x} y={offset.y}>
                 {options.showAxis ? <Path d={axis.path.print()} strokeOpacity={options.opacity} stroke={options.color} strokeWidth={options.strokeWidth} fill="none"/> : null}
               </G>
+              {options.showSecondaryTicks && secondaryTicks}
               {ticks}
             </G>
 

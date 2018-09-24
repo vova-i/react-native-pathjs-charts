@@ -41,6 +41,7 @@ export default class SmoothLineChart extends LineChart {
         showLines: true,
         showLabels: true,
         showTicks: true,
+        showSecondaryTicks: false,
         zeroAxis: false,
         orient: 'bottom',
         label: {
@@ -55,6 +56,7 @@ export default class SmoothLineChart extends LineChart {
         showLines: true,
         showLabels: true,
         showTicks: true,
+        showSecondaryTicks: false,
         zeroAxis: false,
         orient: 'left',
         label: {
