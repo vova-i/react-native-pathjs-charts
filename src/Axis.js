@@ -178,14 +178,14 @@ export default class Axis extends Component {
       let gxy = horizontal ? [scale(scaleBase),chartArea.y.min]:[chartArea.x.min,scale(scaleBase)]
 
       let returnValue
-      if (label !== undefined && label !== null && gxy[1] > 0) {
+      if (label !== undefined && label !== null && gxy[1] > 3 - options.label.fontSize / 2) {
         returnValue =
           <G key={i} x={gxy[0]} y={gxy[1]}>
               {options.showTicks &&
                 <Circle r={options.tickSize} cx="0" cy="0" stroke={options.tickColor} fill={options.tickColor} />
               }
               {options.showLabels &&
-                <Text x={xy[0]} y={xy[1]}
+                <Text x={xy[0]} y={xy[1] + options.label.fontSize}
                       fontFamily={textStyle.fontFamily}
                       fontSize={textStyle.fontSize}
                       fontWeight={textStyle.fontWeight}
